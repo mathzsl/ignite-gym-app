@@ -4,11 +4,12 @@ import {
 } from '@react-navigation/native-stack'
 
 import { TabRoutes } from './tab.routes'
+import { Exercise } from '@screens/Exercise'
 
 type AppRoutes = {
   home: undefined
   exercise: {
-    id: string
+    exercise_id: string
   }
 }
 
@@ -20,6 +21,7 @@ export function AppRoutes() {
   return (
     <Navigator screenOptions={{ headerShown: false }}>
       <Screen name="home" component={TabRoutes} />
+      <Screen name="exercise" component={Exercise} />
     </Navigator>
   )
 }
