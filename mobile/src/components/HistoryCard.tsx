@@ -4,10 +4,15 @@ export function HistoryCard() {
   return (
     <HStack bg="gray.600" py={4} px={5} alignItems="center" rounded="md" mb={3}>
       <VStack flex={1}>
-        <Heading color="white" fontSize="md" textTransform="capitalize">
+        <Heading
+          color="white"
+          fontSize="md"
+          textTransform="capitalize"
+          numberOfLines={1}
+        >
           Costas
         </Heading>
-        <Text color="gray.100" fontSize="lg">
+        <Text color="gray.100" fontSize="lg" numberOfLines={1}>
           Puxada frontal
         </Text>
       </VStack>
