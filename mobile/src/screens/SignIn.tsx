@@ -15,13 +15,17 @@ import { AuthNavigatorRoutesProps } from '@routes/auth.routes'
 
 const signInFormSchema = yup.object({
   email: yup.string().required('Informe o e-mail.').email('E-mail inválido.'),
-  senha: yup.string().required('Informe a senha.'),
+  password: yup.string().required('Informe a senha.'),
 })
 
 type SignInFormData = yup.InferType<typeof signInFormSchema>
 
 export function SignIn() {
-  const { control, handleSubmit } = useForm<SignInFormData>({
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignInFormData>({
     resolver: yupResolver(signInFormSchema),
   })
 
@@ -67,6 +71,7 @@ export function SignIn() {
                 autoCapitalize="none"
                 onChangeText={onChange}
                 value={value}
+                errorMessage={errors.email?.message}
               />
             )}
             name="email"
@@ -80,9 +85,10 @@ export function SignIn() {
                 secureTextEntry
                 onChangeText={onChange}
                 value={value}
+                errorMessage={errors.password?.message}
               />
             )}
-            name="senha"
+            name="password"
           />
 
           <Button title="Acessar" onPress={handleSubmit(handleSignIn)} />
