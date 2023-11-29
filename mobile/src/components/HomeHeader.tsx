@@ -18,7 +18,12 @@ export function HomeHeader() {
         <Text color="gray.100" fontSize="md">
           Olá,
         </Text>
-        <Heading color="gray.100" fontSize="md" numberOfLines={1}>
+        <Heading
+          color="gray.100"
+          fontSize="md"
+          numberOfLines={1}
+          fontFamily="heading"
+        >
           Matheus
         </Heading>
       </VStack>
