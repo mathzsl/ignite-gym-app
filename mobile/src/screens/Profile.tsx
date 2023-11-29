@@ -49,7 +49,7 @@ export function Profile() {
           imagePickerResult.assets[0].uri,
         )) as FileInfo
 
-        if (photoInfo.size && photoInfo.size / 1024 / 1024 > 1) {
+        if (photoInfo.size && photoInfo.size / 1024 / 1024 > 5) {
           return toast.show({
             title: 'Essa imagem é muito grande. Escolha uma de até 5MB',
             placement: 'top',
