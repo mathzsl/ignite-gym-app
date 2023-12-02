@@ -50,11 +50,11 @@ export function SignIn() {
   const navigation = useNavigation<AuthNavigatorRoutesProps>()
   const toast = useToast()
 
-  function handleSignIn({ email, password }: SignInFormData) {
+  async function handleSignIn({ email, password }: SignInFormData) {
     setIsLoading(true)
 
     try {
-      signIn(email, password)
+      await signIn(email, password)
     } catch (error) {
       const isAppError = error instanceof AppError
       const title = isAppError
