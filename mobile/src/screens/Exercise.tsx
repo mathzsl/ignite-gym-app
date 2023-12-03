@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useState } from 'react'
 import { TouchableOpacity } from 'react-native'
 import {
   Box,
@@ -8,10 +9,11 @@ import {
   Text,
   VStack,
   ScrollView,
+  useToast,
 } from 'native-base'
 import { Feather } from '@expo/vector-icons'
 
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation, useRoute } from '@react-navigation/native'
 
 import BodySvg from '@assets/body.svg'
 import SeriesSvg from '@assets/series.svg'
@@ -19,12 +21,57 @@ import RepetitionsSvg from '@assets/repetitions.svg'
 
 import { Button } from '@components/Button'
 
+import { api } from '@services/api'
+
+import { AppError } from '@utils/AppError'
+import { ExerciseDTO } from '@dtos/ExerciseDTO'
+import { Loading } from '@components/Loading'
+
+type RouteParamsProps = {
+  exercise_id: string
+}
+
 export function Exercise() {
+  const [isLoading, setIsLoading] = useState(true)
+  const [exerciseData, setExerciseData] = useState<ExerciseDTO>(
+    {} as ExerciseDTO,
+  )
+
   const navigation = useNavigation()
+
+  const toast = useToast()
+
+  const route = useRoute()
+  const { exercise_id } = route.params as RouteParamsProps
 
   function handleGoBack() {
     navigation.goBack()
   }
+
+  async function fetchExerciseById() {
+    try {
+      const { data } = await api.get(`/exercises/${exercise_id}`)
+
+      setExerciseData(data)
+    } catch (error) {
+      const isAppError = error instanceof AppError
+      const title = isAppError
+        ? error.message
+        : 'Não foi possível carregar os detalhes do exercicio.'
+
+      toast.show({
+        title,
+        placement: 'top',
+        bgColor: 'red.500',
+      })
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchExerciseById()
+  }, [exerciseData])
 
   return (
     <VStack flex={1}>
@@ -40,31 +87,35 @@ export function Exercise() {
             flexShrink={1}
             fontFamily="heading"
           >
-            Puxada frontal
+            {exerciseData.name}
           </Heading>
 
           <HStack alignItems="center">
             <BodySvg />
 
             <Text color="gray.200" ml={1} textTransform="capitalize">
-              Costas
+              {exerciseData.group}
             </Text>
           </HStack>
         </HStack>
       </VStack>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      {isLoading ? (
+        <Loading />
+      ) : (
         <VStack px={8}>
-          <Image
-            source={{
-              uri: 'https://www.feitodeiridium.com.br/wp-content/uploads/2016/07/remada-unilateral-2.jpg',
-            }}
-            alt="Imagem do exercício"
-            w="full"
-            h={80}
-            rounded="lg"
-            resizeMode="cover"
-          />
+          <Box rounded="lg" overflow="hidden">
+            <Image
+              source={{
+                uri: `${api.defaults.baseURL}/exercise/demo/${exerciseData.demo}`,
+              }}
+              alt="Imagem do exercício"
+              w="full"
+              h={80}
+              rounded="lg"
+              resizeMode="cover"
+            />
+          </Box>
 
           <Box bg="gray.600" p={4} rounded="lg" mt={3}>
             <HStack justifyContent="space-evenly" mb={6}>
@@ -72,7 +123,7 @@ export function Exercise() {
                 <SeriesSvg />
 
                 <Text fontSize="lg" color="gray.200" ml={2}>
-                  3 séries
+                  {exerciseData.series} séries
                 </Text>
               </HStack>
 
@@ -80,7 +131,7 @@ export function Exercise() {
                 <RepetitionsSvg />
 
                 <Text fontSize="lg" color="gray.200" ml={2}>
-                  12 repetições
+                  {exerciseData.repetitions} repetições
                 </Text>
               </HStack>
             </HStack>
@@ -88,7 +139,7 @@ export function Exercise() {
             <Button title="Marcar como realizado" />
           </Box>
         </VStack>
-      </ScrollView>
+      )}
     </VStack>
   )
 }

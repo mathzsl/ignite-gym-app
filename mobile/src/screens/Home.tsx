@@ -16,16 +16,14 @@ import { ExerciseDTO } from '@dtos/ExerciseDTO'
 export function Home() {
   const [groups, setGroups] = useState<string[]>([])
   const [exercises, setExercises] = useState<ExerciseDTO[]>([])
-  const [groupSelected, setGroupSelected] = useState('costas')
+  const [groupSelected, setGroupSelected] = useState('antebraço')
 
   const navigation = useNavigation<AppNavigatorRoutesProps>()
 
-  console.log(exercises)
-
   const toast = useToast()
 
-  function handleOpenExerciseDetails() {
-    navigation.navigate('exercise', { exercise_id: '1' })
+  function handleOpenExerciseDetails(exercise_id: string) {
+    navigation.navigate('exercise', { exercise_id })
   }
 
   async function fetchExercisesByGroup() {
@@ -117,7 +115,10 @@ export function Home() {
           data={exercises}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <ExerciseCard data={item} onPress={handleOpenExerciseDetails} />
+            <ExerciseCard
+              data={item}
+              onPress={() => handleOpenExerciseDetails(item.id)}
+            />
           )}
           _contentContainerStyle={{
             pb: 8,
