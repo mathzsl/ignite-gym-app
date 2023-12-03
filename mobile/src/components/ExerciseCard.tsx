@@ -11,9 +11,15 @@ import {
 
 import { Entypo } from '@expo/vector-icons'
 
-type ExerciseCardProps = TouchableOpacityProps & {}
+import { ExerciseDTO } from '@dtos/ExerciseDTO'
 
-export function ExerciseCard({ ...rest }: ExerciseCardProps) {
+import { api } from '@services/api'
+
+type ExerciseCardProps = TouchableOpacityProps & {
+  data: ExerciseDTO
+}
+
+export function ExerciseCard({ data, ...rest }: ExerciseCardProps) {
   const { colors } = useTheme()
 
   return (
@@ -28,7 +34,7 @@ export function ExerciseCard({ ...rest }: ExerciseCardProps) {
       >
         <Image
           source={{
-            uri: 'https://www.origym.com.br/midia/remada-unilateral-3.jpg',
+            uri: `${api.defaults.baseURL}/exercise/thumb/${data.thumb}`,
           }}
           alt="Imagem do exercicio"
           w={16}
@@ -44,10 +50,10 @@ export function ExerciseCard({ ...rest }: ExerciseCardProps) {
             numberOfLines={1}
             fontFamily="heading"
           >
-            Remada unilateral
+            {data.name}
           </Heading>
           <Text color="gray.200" fontSize="sm" numberOfLines={2}>
-            3 séries x 12 repetições
+            {data.series} séries x {data.repetitions} repetições
           </Text>
         </VStack>
 
