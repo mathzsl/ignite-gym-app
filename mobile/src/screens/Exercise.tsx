@@ -8,7 +8,6 @@ import {
   Image,
   Text,
   VStack,
-  ScrollView,
   useToast,
 } from 'native-base'
 import { Feather } from '@expo/vector-icons'
@@ -20,24 +19,27 @@ import SeriesSvg from '@assets/series.svg'
 import RepetitionsSvg from '@assets/repetitions.svg'
 
 import { Button } from '@components/Button'
+import { Loading } from '@components/Loading'
 
 import { api } from '@services/api'
 
 import { AppError } from '@utils/AppError'
 import { ExerciseDTO } from '@dtos/ExerciseDTO'
-import { Loading } from '@components/Loading'
+
+import { TabNavigatorRoutesProps } from '@routes/tab.routes'
 
 type RouteParamsProps = {
   exercise_id: string
 }
 
 export function Exercise() {
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [exerciseData, setExerciseData] = useState<ExerciseDTO>(
     {} as ExerciseDTO,
   )
 
-  const navigation = useNavigation()
+  const navigation = useNavigation<TabNavigatorRoutesProps>()
 
   const toast = useToast()
 
@@ -66,6 +68,37 @@ export function Exercise() {
       })
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  async function handleMarkAsDone() {
+    try {
+      setIsSubmitting(true)
+
+      await api.post('/history', {
+        exercise_id,
+      })
+
+      toast.show({
+        title: 'Parabéns! Exercício registrado com sucesso!',
+        placement: 'top',
+        bgColor: 'green.700',
+      })
+
+      navigation.navigate('history')
+    } catch (error) {
+      const isAppError = error instanceof AppError
+      const title = isAppError
+        ? error.message
+        : 'Não foi possível registrar o exercicio.'
+
+      toast.show({
+        title,
+        placement: 'top',
+        bgColor: 'red.500',
+      })
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -136,7 +169,11 @@ export function Exercise() {
               </HStack>
             </HStack>
 
-            <Button title="Marcar como realizado" />
+            <Button
+              title="Marcar como realizado"
+              onPress={handleMarkAsDone}
+              isLoading={isSubmitting}
+            />
           </Box>
         </VStack>
       )}
