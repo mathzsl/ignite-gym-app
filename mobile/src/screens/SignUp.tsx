@@ -1,8 +1,17 @@
+import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 
-import { Center, Heading, Image, Text, VStack, ScrollView } from 'native-base'
+import {
+  Center,
+  Heading,
+  Image,
+  Text,
+  VStack,
+  ScrollView,
+  useToast,
+} from 'native-base'
 
 import BackgroundImg from '@assets/background.png'
 
@@ -11,6 +20,12 @@ import { Input } from '@components/Input'
 import { Button } from '@components/Button'
 
 import { useNavigation } from '@react-navigation/native'
+
+import { api } from '@services/api'
+
+import { AppError } from '@utils/AppError'
+
+import { useAuth } from '@hooks/useAuth'
 
 const signUpFormSchema = yup.object({
   name: yup.string().required('Informe o nome.'),
@@ -36,14 +51,42 @@ export function SignUp() {
     resolver: yupResolver(signUpFormSchema),
   })
 
+  const [isLoading, setIsLoading] = useState(false)
+
+  const { signIn } = useAuth()
+
   const navigation = useNavigation()
+
+  const toast = useToast()
 
   function handleGoBack() {
     navigation.goBack()
   }
 
-  function handleSignUp(data: SignUpFormData) {
-    console.log(data)
+  async function handleSignUp({ name, email, password }: SignUpFormData) {
+    try {
+      setIsLoading(true)
+      await api.post('/users', {
+        name,
+        email,
+        password,
+      })
+
+      await signIn(email, password)
+    } catch (error) {
+      setIsLoading(true)
+
+      const isAppError = error instanceof AppError
+      const title = isAppError
+        ? error.message
+        : 'Não foi possível criar a conta. Tente novamente mais tarde.'
+
+      toast.show({
+        title,
+        placement: 'top',
+        bgColor: 'red.500',
+      })
+    }
   }
 
   return (
@@ -133,6 +176,7 @@ export function SignUp() {
 
           <Button
             title="Criar e acessar"
+            isLoading={isLoading}
             onPress={handleSubmit(handleSignUp)}
           />
         </Center>
