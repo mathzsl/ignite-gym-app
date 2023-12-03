@@ -1,6 +1,9 @@
 import { Platform } from 'react-native'
 import { useTheme } from 'native-base'
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
+import {
+  createBottomTabNavigator,
+  BottomTabNavigationProp,
+} from '@react-navigation/bottom-tabs'
 
 import HomeSvg from '@assets/home.svg'
 import HistorySvg from '@assets/history.svg'
@@ -15,6 +18,8 @@ type TabRoutes = {
   history: undefined
   profile: undefined
 }
+
+export type TabNavigatorRoutesProps = BottomTabNavigationProp<TabRoutes>
 
 const { Navigator, Screen } = createBottomTabNavigator<TabRoutes>()
 
