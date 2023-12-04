@@ -63,7 +63,6 @@ type ProfileFormData = yup.InferType<typeof profileFormSchema>
 export function Profile() {
   const [isUpdating, setIsUpdating] = useState(false)
   const [photoIsLoading, setPhotoIsLoading] = useState(false)
-  const [selectedImage, setSelectedImage] = useState<null | string>(null)
 
   const toast = useToast()
   const { user, updateUserProfile } = useAuth()
@@ -108,7 +107,32 @@ export function Profile() {
           })
         }
 
-        setSelectedImage(imagePickerResult.assets[0].uri)
+        const fileExtension = imagePickerResult.assets[0].uri.split('.').pop()
+
+        const photoFile = {
+          name: `${user.name}.${fileExtension}`.toLocaleLowerCase(),
+          uri: imagePickerResult.assets[0].uri,
+          type: `${imagePickerResult.assets[0].type}/${fileExtension}`,
+        } as any
+
+        const userPhotoUploadForm = new FormData()
+        userPhotoUploadForm.append('avatar', photoFile)
+
+        const { data } = await api.patch('/users/avatar', userPhotoUploadForm, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+
+        const userUpdated = user
+        userUpdated.avatar = data.avatar
+        updateUserProfile(userUpdated)
+
+        toast.show({
+          title: 'Foto atualizada!',
+          placement: 'top',
+          bgColor: 'green.500',
+        })
       }
     } catch (error) {
     } finally {
@@ -167,7 +191,11 @@ export function Profile() {
             isLoaded={!photoIsLoading}
           >
             <Avatar
-              source={selectedImage ? { uri: selectedImage } : userPhotoDefault}
+              source={
+                user.avatar
+                  ? { uri: `${api.defaults.baseURL}/avatar/${user.avatar}` }
+                  : userPhotoDefault
+              }
               alt="Foto do usuário"
               size={PHOTO_SIZE}
             />

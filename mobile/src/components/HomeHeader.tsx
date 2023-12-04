@@ -8,13 +8,19 @@ import { Avatar } from './Avatar'
 
 import { useAuth } from '@hooks/useAuth'
 
+import { api } from '@services/api'
+
 export function HomeHeader() {
   const { user, signOut } = useAuth()
 
   return (
     <HStack bg="gray.600" pt={16} pb={5} px={8} alignItems="center">
       <Avatar
-        source={!user.avatar ? defaultUserPhotoImg : { uri: user.avatar }}
+        source={
+          !user.avatar
+            ? defaultUserPhotoImg
+            : { uri: `${api.defaults.baseURL}/avatar/${user.avatar}` }
+        }
         alt="Imagem do usuário"
         size={16}
         mr={4}
